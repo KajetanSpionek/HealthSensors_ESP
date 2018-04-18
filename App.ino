@@ -3,10 +3,6 @@
 #include <WiFiUdp.h>
 #include <time.h>
 
-
-
-
-
 void setup() {
     initUart();
     initWifi();
@@ -15,6 +11,5 @@ void setup() {
 
 
 void loop() {
-
-
+    
 }

@@ -1,5 +1,6 @@
 void initTime() {
     time_t epochTime;
+    // Read time from web
     configTime(7200, 0, "pool.ntp.org", "time.nist.gov");
 
     while (true) {
@@ -17,10 +18,9 @@ void initTime() {
                 epochTime = time(NULL);
                 timeinfo = localtime(&epochTime);
             }
-            Serial.println(ctime(&epochTime));
-            Serial.println(timeinfo->tm_hour);
-            Serial.println(timeinfo->tm_min);
-            Serial.println(timeinfo->tm_sec);
+            // Serial.println(ctime(&epochTime));
+            // Send frame to STM with time
+            sendTime(timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec);
             break;
         }
     }
