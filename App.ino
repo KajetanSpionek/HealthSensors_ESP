@@ -8,8 +8,9 @@ void setup() {
     initWifi();
     initTime();
 }
-
+uint8_t data = 0x15;
+int incomingByte = 0; 
 
 void loop() {
-    
+    if (Serial.available() > 0) receiverStm(Serial.read());
 }
