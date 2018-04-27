@@ -1,6 +1,8 @@
 enum EspStates {
 	stm_idle = 0,
-    stm_route
+    stm_route,
+    stm_ppg_red,
+    stm_ppg_ir
 };
 
 #define STM_STARTBYTE 0x7E
@@ -9,32 +11,48 @@ enum EspStates {
 #define STM_CMD_ECG 			0x40
 #define STM_CMD_PPG_RED 		0x41
 #define STM_CMD_PPG_IR 			0x42
+	// cmd ack/nack by STM
+#define STM_ACK					0x11
+#define STM_NACK				0x14
 
 /* Comands sent to STM */
 #define STM_SET_CLOCK			0xA1
 #define STM_SET_DATE			0xA2
-#define STM_PING				0xA4
+#define STM_WIFI				0xA4
+#define STM_CLOUD_RDY			0xA8
+#define STM_REQUEST_MEASUREMENT 0xAA
+	// Data ack/nack by esp/cloud
+#define STM_DATA_ACK			0xC1
+#define STM_DATA_NACK			0xC4
 
 
 void receiverStm(int msg) {
 
-    uint8_t static rec = stm_idle;
-    Serial.write(0x7E);
-    Serial.write(STM_PING);
-    Serial.write(0xF2);
-	//uint8_t static in_case_cnt = 0;
-	//uint8_t static box[3];
+    uint8_t static rec = 0;
+	uint8_t static in_case_cnt = 0;
+	uint8_t static box[21];
+    // sendCmd(msg);
+    // Serial.println(msg);
 
-    // switch(rec) {
-	// case stm_idle: // Search for starting byte (0x7E)
-	// 		if (msg == STM_STARTBYTE) rec = stm_route;
-    //         sendFrame(STM_PING, (uint8_t*) 0xAB, 1);
-	// 		break;
-    // case stm_route: // Routing
-    //         rec = stm_idle;
-    //         sendFrame(STM_PING, (uint8_t*) 0x47, 1);
-    //         break;
-    // default: break;
-	// }
+    switch(rec) {
+	case 0: // Search for starting byte (0x7E)
+	 		if (msg == 0x7E) rec = 1;
+	 		break;
+    case 1: // Routing
+            if (msg == 0x40) rec = 2;
+            else if (msg == 0x41) rec = 3;
+            else rec = 0;
+             break;
+     case 3: // Receiving STM_CMD_PPG_RED
+            box[in_case_cnt] = msg;
+			in_case_cnt+= 1;
+			if(in_case_cnt == 21) {
+				in_case_cnt = 0;
+				rec = 0;
+                prepMessageMeasurement(0x00, (char*) box);
+			}
+         break;
+     default: break;
+	 }
 
 }

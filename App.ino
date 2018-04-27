@@ -13,7 +13,8 @@ static WiFiClientSecure sslClient;
 
 #define DEVICE_ID "4F2D"
 
-uint8_t data = 0x15;
+int wifi_connected = 0;
+int cloud_connected = 0;
 int incomingByte = 0; 
 char payload_data[256];
 char payload_hb[64];
@@ -28,7 +29,8 @@ void setup() {
 
 void loop() {
     if (Serial.available() > 0) receiverStm(Serial.read());
-    sendMessage(iotHubClientHandle, payload_hb);
+    //sendMessage(iotHubClientHandle, payload_hb);
     IoTHubClient_LL_DoWork(iotHubClientHandle);
-    delay(5000);
+    //delay(5000);
+    delay(1);
 }
